@@ -141,6 +141,7 @@ criterion = FocalLoss()
 def train():
     model.train()
     iteration = 1
+    best_precisions = -1000.0;
     for epoch in range(args.num_epoch):
         print("{} epoch: \t start training....".format(epoch))
         start = time.time()
@@ -198,9 +199,10 @@ def train():
         print('\n')
         print('$$$$$$$$$$$', average_precisions, '$$$$$$$$$$$$$$$$$$$$$$')
         print('\n')
+        if average_precisions > best_precisions:
+            torch.save(
+                state, './weights/checkpoint_{}_{}_{}.pth'.format(args.dataset, args.network, epoch))
 
-        torch.save(
-            state, './weights/checkpoint_{}_{}_{}.pth'.format(args.dataset, args.network, epoch))
     state = {
         'arch': arch,
         'num_class': args.num_class,
