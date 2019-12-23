@@ -81,6 +81,7 @@ class CocoDataset(Dataset):
         image_info = self.coco.loadImgs(self.image_ids[image_index])[0]
         # path       = os.path.join(self.root_dir, 'images', self.set_name, image_info['file_name'])
         path = os.path.join(self.root_dir, 'images', image_info['file_name'])
+        print('\n',path)
         img = cv2.imread(path)
 
         if len(img.shape) == 2:
