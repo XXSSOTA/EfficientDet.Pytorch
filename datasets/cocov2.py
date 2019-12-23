@@ -80,8 +80,10 @@ class CocoDataset(Dataset):
     def load_image(self, image_index):
         image_info = self.coco.loadImgs(self.image_ids[image_index])[0]
         # path       = os.path.join(self.root_dir, 'images', self.set_name, image_info['file_name'])
-        path = os.path.join(self.root_dir, 'images', image_info['file_name'])
-        print('\n',path)
+        if 'train' in self.set_name:
+            path = os.path.join(self.root_dir, 'images', image_info['file_name'])
+        else:
+            path = os.path.join(self.root_dir, self.set_name, image_info['file_name'])
         img = cv2.imread(path)
 
         if len(img.shape) == 2:
