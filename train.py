@@ -144,6 +144,12 @@ def train():
     best_precisions = -1000.0;
     for epoch in range(args.num_epoch):
         print("{} epoch: \t start training....".format(epoch))
+
+        average_precisions = eval_coco(model, valid_dataloader, valid_dataset, device)
+        print('\n')
+        print('$$$$$$$$$$$', average_precisions, '$$$$$$$$$$$$$$$$$$$$$$')
+        print('\n')
+
         start = time.time()
         result = {}
         total_loss = []

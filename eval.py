@@ -2,6 +2,7 @@ import os
 import numpy as np
 import argparse
 import torch
+import pdb
 from tqdm import tqdm
 
 from datasets import VOCDetection, COCODetection, get_augumentation, detection_collate
@@ -253,6 +254,7 @@ def eval_coco(model, valid_dataloader, valid_dataset, iou_threshold=0.5):
         for idx, (images, annotations) in enumerate(valid_dataloader):
             images = images.to(device)
             annotations = annotations.to(device)
+            pdb.set_trace()
             scores, classification, transformed_anchors = model(images)
             if (scores.shape[0] > 0):
                 pred_annots = []
