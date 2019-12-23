@@ -101,7 +101,7 @@ elif (args.dataset == 'COCO'):
         phase='train', width=EFFICIENTDET[args.network]['input_size'], height=EFFICIENTDET[args.network]['input_size']))
     # train_dataset = COCODetection(root=args.dataset_root,
     #                               transform=get_augumentation(phase='train', width=EFFICIENTDET[args.network]['input_size'], height=EFFICIENTDET[args.network]['input_size']))
-    val_dataset = COCODetection(root_dir=args.dataset_root, set_name='val2017', transform=get_augumentation(
+    valid_dataset = COCODetection(root=args.dataset_root, set_name='val2017', transform=get_augumentation(
         phase='valid', width=EFFICIENTDET[args.network]['input_size'], height=EFFICIENTDET[args.network]['input_size']))
 
 train_dataloader = DataLoader(train_dataset,
@@ -111,12 +111,12 @@ train_dataloader = DataLoader(train_dataset,
                               collate_fn=detection_collate,
                               pin_memory=True)
 
-# val_dataloader = DataLoader(val_dataset,
-#                             batch_size=args.batch_size,
-#                             num_workers=args.num_worker,
-#                             shuffle=False,
-#                             collate_fn=detection_collate,
-#                             pin_memory=True)
+valid_dataloader = DataLoader(valid_dataset,
+                              batch_size=1,
+                              num_workers=args.num_worker,
+                              shuffle=False,
+                              collate_fn=detection_collate,
+                              pin_memory=False)
 
 model = EfficientDet(num_classes=args.num_classes,
                      network=args.network,
@@ -194,7 +194,7 @@ def train():
             'state_dict': get_state_dict(model)
         }
 
-        average_precisions = eval_coco(model, val_dataset)
+        average_precisions = eval_coco(model, valid_dataloader,valid_dataset)
         print('\n')
         print('$$$$$$$$$$$', average_precisions, '$$$$$$$$$$$$$$$$$$$$$$')
         print('\n')

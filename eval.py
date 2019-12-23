@@ -30,7 +30,6 @@ parser.add_argument('--device', default=[0], type=list,
                     help='Use CUDA to train model')
 
 
-
 def prepare_device(device):
     n_gpu_use = len(device)
     print('n_gpu_use: ', n_gpu_use)
@@ -245,7 +244,7 @@ def eval_voc(iou_threshold=0.5):
         return average_precisions
 
 
-def eval_coco(model, valid_dataset, iou_threshold=0.5):
+def eval_coco(model, valid_dataloader, valid_dataset, iou_threshold=0.5):
     model.eval()
     with torch.no_grad():
         all_detections = [[None for i in range(valid_dataset.__num_class__())] for j in range(len(valid_dataset))]
