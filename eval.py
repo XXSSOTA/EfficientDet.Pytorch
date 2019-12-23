@@ -28,7 +28,7 @@ parser.add_argument('--num_worker', default=8, type=int,
                     help='Number of workers used in dataloading')
 parser.add_argument('--device', default=[0], type=list,
                     help='Use CUDA to train model')
-args = parser.parse_args()
+
 
 
 def prepare_device(device):
@@ -343,6 +343,7 @@ def eval_coco(model, valid_dataset, iou_threshold=0.5):
 
 
 def main():
+    args = parser.parse_args()
     # global valid_dataloader
     # global model
     if (args.dataset == 'VOC'):
