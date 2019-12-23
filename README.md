@@ -59,6 +59,8 @@ model    | #GPUs | batch size | lr        | lr_decay | max_epoch     |  ti
 * PyTorch 1.3+
 * Torchvision 0.4.0+ (**We need high version because Torchvision support nms now.**)
 * requirements.txt 
+* conda install -c conda-forge imgaug
+* conda install albumentations -c albumentations
 ## Datasets
 To make things easy, we provide bash scripts to handle the dataset downloads and setup for you.  We also provide simple dataset loaders that inherit `torch.utils.data.Dataset`, making them fully compatible with the `torchvision.datasets` [API](http://pytorch.org/docs/torchvision/datasets.html).
 

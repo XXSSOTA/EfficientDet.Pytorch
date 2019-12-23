@@ -12,7 +12,7 @@ from models.efficientdet import EfficientDet
 from models.losses import FocalLoss
 from datasets import VOCDetection, COCODetection, CocoDataset, get_augumentation, detection_collate
 from utils import EFFICIENTDET
-
+from eval import *
 
 parser = argparse.ArgumentParser(
     description='EfficientDet Training With Pytorch')
@@ -34,7 +34,7 @@ parser.add_argument('--num_worker', default=8, type=int,
                     help='Number of workers used in dataloading')
 parser.add_argument('--num_classes', default=80, type=int,
                     help='Number of class used in model')
-parser.add_argument('--device', default=[0,1,2], type=list,
+parser.add_argument('--device', default=[0, 1, 2], type=list,
                     help='Use CUDA to train model')
 parser.add_argument('--grad_accumulation_steps', default=1, type=int,
                     help='Number of gradient accumulation steps')
@@ -53,7 +53,6 @@ if not os.path.exists(args.save_folder):
     os.mkdir(args.save_folder)
 
 
-
 def prepare_device(device):
     n_gpu_use = len(device)
     n_gpu = torch.cuda.device_count()
@@ -61,8 +60,9 @@ def prepare_device(device):
         print("Warning: There\'s no GPU available on this machine, training will be performed on CPU.")
         n_gpu_use = 0
     if n_gpu_use > n_gpu:
-        print("Warning: The number of GPU\'s configured to use is {}, but only {} are available on this machine.".format(
-            n_gpu_use, n_gpu))
+        print(
+            "Warning: The number of GPU\'s configured to use is {}, but only {} are available on this machine.".format(
+                n_gpu_use, n_gpu))
         n_gpu_use = n_gpu
     list_ids = device
     device = torch.device('cuda:{}'.format(
@@ -80,7 +80,7 @@ def get_state_dict(model):
 
 
 checkpoint = []
-if(args.resume is not None):
+if (args.resume is not None):
     resume_path = str(args.resume)
     print("Loading checkpoint: {} ...".format(resume_path))
     checkpoint = torch.load(
@@ -89,15 +89,20 @@ if(args.resume is not None):
     args.network = checkpoint['network']
 
 train_dataset = []
-if(args.dataset == 'VOC'):
+if (args.dataset == 'VOC'):
     train_dataset = VOCDetection(root=args.dataset_root,
-                                 transform=get_augumentation(phase='train', width=EFFICIENTDET[args.network]['input_size'], height=EFFICIENTDET[args.network]['input_size']))
+                                 transform=get_augumentation(phase='train',
+                                                             width=EFFICIENTDET[args.network]['input_size'],
+                                                             height=EFFICIENTDET[args.network]['input_size']))
 
-elif(args.dataset == 'COCO'):
-    train_dataset = CocoDataset(root_dir=args.dataset_root, set_name='train2017', transform=get_augumentation(
+elif (args.dataset == 'COCO'):
+    # train_dataset = CocoDataset(root_dir=args.dataset_root, set_name='train2017', transform=get_augumentation(
+    train_dataset = CocoDataset(root_dir=args.dataset_root, set_name='val2017', transform=get_augumentation(
         phase='train', width=EFFICIENTDET[args.network]['input_size'], height=EFFICIENTDET[args.network]['input_size']))
     # train_dataset = COCODetection(root=args.dataset_root,
     #                               transform=get_augumentation(phase='train', width=EFFICIENTDET[args.network]['input_size'], height=EFFICIENTDET[args.network]['input_size']))
+    val_dataset = COCODetection(root_dir=args.dataset_root, set_name='val2017', transform=get_augumentation(
+        phase='valid', width=EFFICIENTDET[args.network]['input_size'], height=EFFICIENTDET[args.network]['input_size']))
 
 train_dataloader = DataLoader(train_dataset,
                               batch_size=args.batch_size,
@@ -106,17 +111,24 @@ train_dataloader = DataLoader(train_dataset,
                               collate_fn=detection_collate,
                               pin_memory=True)
 
+# val_dataloader = DataLoader(val_dataset,
+#                             batch_size=args.batch_size,
+#                             num_workers=args.num_worker,
+#                             shuffle=False,
+#                             collate_fn=detection_collate,
+#                             pin_memory=True)
+
 model = EfficientDet(num_classes=args.num_classes,
                      network=args.network,
                      W_bifpn=EFFICIENTDET[args.network]['W_bifpn'],
                      D_bifpn=EFFICIENTDET[args.network]['D_bifpn'],
                      D_class=EFFICIENTDET[args.network]['D_class'],
                      )
-if(args.resume is not None):
+if (args.resume is not None):
     model.load_state_dict(checkpoint['state_dict'])
 device, device_ids = prepare_device(args.device)
 model = model.to(device)
-if(len(device_ids) > 1):
+if (len(device_ids) > 1):
     model = torch.nn.DataParallel(model, device_ids=device_ids)
 
 optimizer = optim.Adam(model.parameters(), lr=args.lr)
@@ -148,13 +160,13 @@ def train():
                 print('loss equal zero(0)')
                 continue
             loss.backward()
-            if (idx+1) % args.grad_accumulation_steps == 0:
+            if (idx + 1) % args.grad_accumulation_steps == 0:
                 torch.nn.utils.clip_grad_norm_(model.parameters(), 0.1)
                 optimizer.step()
                 optimizer.zero_grad()
 
             total_loss.append(loss.item())
-            if(iteration % 100 == 0):
+            if (iteration % 100 == 0):
                 print('{} iteration: training ...'.format(iteration))
                 ans = {
                     'epoch': epoch,
@@ -181,6 +193,12 @@ def train():
             'network': args.network,
             'state_dict': get_state_dict(model)
         }
+
+        average_precisions = eval_coco(model, val_dataset)
+        print('\n')
+        print('$$$$$$$$$$$', average_precisions, '$$$$$$$$$$$$$$$$$$$$$$')
+        print('\n')
+
         torch.save(
             state, './weights/checkpoint_{}_{}_{}.pth'.format(args.dataset, args.network, epoch))
     state = {

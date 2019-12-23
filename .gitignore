@@ -23,6 +23,10 @@ wheels/
 *.egg-info/
 .installed.cfg
 *.egg
+*.zip
+*.xml
+*.tgz
+*.iml
 MANIFEST
 
 # PyInstaller
