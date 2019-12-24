@@ -104,7 +104,7 @@ elif (args.dataset == 'COCO'):
     # valid_dataset = COCODetection(root=args.dataset_root, image_set='val2017', transform=get_augumentation(
     #     phase='valid', width=EFFICIENTDET[args.network]['input_size'], height=EFFICIENTDET[args.network]['input_size']))
     valid_dataset = CocoDataset(root_dir=args.dataset_root, set_name='val2017', transform=get_augumentation(
-        phase='valid', width=EFFICIENTDET[args.network]['input_size'], height=EFFICIENTDET[args.network]['input_size']))
+        phase='test', width=EFFICIENTDET[args.network]['input_size'], height=EFFICIENTDET[args.network]['input_size']))
 
 train_dataloader = DataLoader(train_dataset,
                               batch_size=args.batch_size,

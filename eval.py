@@ -346,34 +346,34 @@ def eval_coco(model, valid_dataloader, valid_dataset, iou_threshold=0.5):
 
 
 def main():
-    args = parser.parse_args()
-    # global valid_dataloader
-    # global model
-    if (args.dataset == 'VOC'):
-        valid_dataset = VOCDetection(root=args.dataset_root,
-                                     transform=get_augumentation(phase='valid'))
-    elif (args.dataset == 'COCO'):
-        valid_dataset = COCODetection(root=args.dataset_root,
-                                      transform=get_augumentation(phase='valid'))
-    valid_dataloader = DataLoader(valid_dataset,
-                                  batch_size=1,
-                                  num_workers=args.num_worker,
-                                  shuffle=False,
-                                  collate_fn=detection_collate,
-                                  pin_memory=False)
-    if (args.weights is not None):
-        resume_path = str(args.weights)
-        print("Loading checkpoint: {} ...".format(resume_path))
-        checkpoint = torch.load(
-            args.weights, map_location=lambda storage, loc: storage)
-        num_class = checkpoint['num_class']
-        network = checkpoint['network']
-        model = EfficientDet(num_classes=num_class, network=network, is_training=False)
-        model.load_state_dict(checkpoint['state_dict'])
-    device, device_ids = prepare_device(args.device)
-    model = model.to(device)
-    if (len(device_ids) > 1):
-        model = torch.nn.DataParallel(model, device_ids=device_ids)
+    # args = parser.parse_args()
+    # # global valid_dataloader
+    # # global model
+    # if (args.dataset == 'VOC'):
+    #     valid_dataset = VOCDetection(root=args.dataset_root,
+    #                                  transform=get_augumentation(phase='valid'))
+    # elif (args.dataset == 'COCO'):
+    #     valid_dataset = COCODetection(root=args.dataset_root,
+    #                                   transform=get_augumentation(phase='valid'))
+    # valid_dataloader = DataLoader(valid_dataset,
+    #                               batch_size=1,
+    #                               num_workers=args.num_worker,
+    #                               shuffle=False,
+    #                               collate_fn=detection_collate,
+    #                               pin_memory=False)
+    # if (args.weights is not None):
+    #     resume_path = str(args.weights)
+    #     print("Loading checkpoint: {} ...".format(resume_path))
+    #     checkpoint = torch.load(
+    #         args.weights, map_location=lambda storage, loc: storage)
+    #     num_class = checkpoint['num_class']
+    #     network = checkpoint['network']
+    #     model = EfficientDet(num_classes=num_class, network=network, is_training=False)
+    #     model.load_state_dict(checkpoint['state_dict'])
+    # device, device_ids = prepare_device(args.device)
+    # model = model.to(device)
+    # if (len(device_ids) > 1):
+    #     model = torch.nn.DataParallel(model, device_ids=device_ids)
     eval_voc()
 
 
