@@ -161,9 +161,6 @@ class CocoDataset(Dataset):
 
     def num_classes(self):
         return 80
-    
-    def __len__(self):
-        return len(self.ids)
 
     def __num_class__(self):
         return len(COCO_CLASSES)
