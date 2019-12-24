@@ -145,10 +145,10 @@ def train():
     for epoch in range(args.num_epoch):
         print("{} epoch: \t start training....".format(epoch))
 
-        # average_precisions = eval_coco(model, valid_dataloader, valid_dataset, device)
-        # print('\n')
-        # print('$$$$$$$$$$$', average_precisions, '$$$$$$$$$$$$$$$$$$$$$$')
-        # print('\n')
+        average_precisions = eval_coco(model, valid_dataloader, valid_dataset, device)
+        print('\n')
+        print('$$$$$$$$$$$', average_precisions, '$$$$$$$$$$$$$$$$$$$$$$')
+        print('\n')
         model.is_training = True
         start = time.time()
         result = {}
