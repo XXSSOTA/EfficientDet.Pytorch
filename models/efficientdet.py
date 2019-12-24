@@ -57,7 +57,6 @@ class EfficientDet(nn.Module):
 
     def forward(self, inputs):
         features = self.efficientnet(inputs)
-        pdb.set_trace()
         features = self.BIFPN(features[-5:])
         regression = torch.cat([self.regressionModel(feature) for feature in features], dim=1)
         classification = torch.cat([self.classificationModel(feature) for feature in features], dim=1)
