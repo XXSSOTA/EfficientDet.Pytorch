@@ -114,7 +114,7 @@ train_dataloader = DataLoader(train_dataset,
                               pin_memory=True)
 
 valid_dataloader = DataLoader(valid_dataset,
-                              batch_size=1,
+                              batch_size=args.batch_size,
                               num_workers=args.num_worker,
                               shuffle=False,
                               collate_fn=detection_collate,
