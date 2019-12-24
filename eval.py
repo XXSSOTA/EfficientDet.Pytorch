@@ -254,8 +254,7 @@ def eval_coco(model, valid_dataloader, valid_dataset, iou_threshold=0.5):
         for idx, (images, annotations) in enumerate(valid_dataloader):
             images = images.to(device)
             annotations = annotations.to(device)
-            classification, regression, anchors = model(images)
-            scores, classification, transformed_anchors = model.process_res(classification, regression, anchors, images)
+            scores, classification, transformed_anchors = model(images)
             pdb.set_trace()
             if (scores.shape[0] > 0):
                 pred_annots = []

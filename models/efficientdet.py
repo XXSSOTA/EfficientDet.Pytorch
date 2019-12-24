@@ -87,28 +87,3 @@ class EfficientDet(nn.Module):
         for layer in self.modules():
             if isinstance(layer, nn.BatchNorm2d):
                 layer.eval()
-
-    def process_res(self, classification, regression, anchors,inputs):
-        '''
-
-        :param classification:
-        :param regression:
-        :param anchors:
-        :param inputs:
-        :return:
-        '''
-        transformed_anchors = self.regressBoxes(anchors, regression)
-        transformed_anchors = self.clipBoxes(transformed_anchors, inputs)
-        scores = torch.max(classification, dim=2, keepdim=True)[0]
-        scores_over_thresh = (scores > self.threshold)[0, :, 0]
-
-        if scores_over_thresh.sum() == 0:
-            print('No boxes to NMS')
-            # no boxes to NMS, just return
-            return [torch.zeros(0), torch.zeros(0), torch.zeros(0, 4)]
-        classification = classification[:, scores_over_thresh, :]
-        transformed_anchors = transformed_anchors[:, scores_over_thresh, :]
-        scores = scores[:, scores_over_thresh, :]
-        anchors_nms_idx = nms(transformed_anchors[0, :, :], scores[0, :, 0], iou_threshold=self.iou_threshold)
-        nms_scores, nms_class = classification[0, anchors_nms_idx, :].max(dim=1)
-        return nms_scores, nms_class, transformed_anchors[0, anchors_nms_idx, :]
