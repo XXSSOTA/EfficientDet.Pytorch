@@ -151,7 +151,6 @@ def train():
         print('\n')
         print('$$$$$$$$$$$', average_precisions, '$$$$$$$$$$$$$$$$$$$$$$')
         print('\n')
-        model.is_training = True
         start = time.time()
         result = {}
         total_loss = []

@@ -248,14 +248,14 @@ def eval_voc(iou_threshold=0.5):
 def eval_coco(model, valid_dataloader, valid_dataset, iou_threshold=0.5):
     device = torch.device('cuda:0')
     model.eval()
-    model.is_training = False
     with torch.no_grad():
         all_detections = [[None for i in range(valid_dataset.__num_class__())] for j in range(len(valid_dataset))]
         all_annotations = [[None for i in range(valid_dataset.__num_class__())] for j in range(len(valid_dataset))]
         for idx, (images, annotations) in enumerate(valid_dataloader):
             images = images.to(device)
             annotations = annotations.to(device)
-            scores, classification, transformed_anchors = model(images)
+            classification, regression, anchors = model(images)
+            scores, classification, transformed_anchors = model.process_res(classification, regression, anchors, images)
             pdb.set_trace()
             if (scores.shape[0] > 0):
                 pred_annots = []

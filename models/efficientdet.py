@@ -5,7 +5,7 @@ import pdb
 from models.efficientnet import EfficientNet
 from models.bifpn import BIFPN
 from models.module import RegressionModel, ClassificationModel, Anchors, ClipBoxes, BBoxTransform
-from torchvision.ops import nms 
+from torchvision.ops import nms
 
 MODEL_MAP = {
     'efficientdet-d0': 'efficientnet-b0',
@@ -15,10 +15,12 @@ MODEL_MAP = {
     'efficientdet-d4': 'efficientnet-b4',
     'efficientdet-d5': 'efficientnet-b5',
 }
+
+
 class EfficientDet(nn.Module):
     def __init__(self,
                  num_classes,
-                 network = 'efficientdet-d0',
+                 network='efficientdet-d0',
                  D_bifpn=3,
                  W_bifpn=88,
                  D_class=3,
@@ -29,9 +31,9 @@ class EfficientDet(nn.Module):
         self.efficientnet = EfficientNet.from_pretrained(MODEL_MAP[network])
         self.is_training = is_training
         self.BIFPN = BIFPN(in_channels=self.efficientnet.get_list_features()[-5:],
-                                out_channels=W_bifpn,
-                                stack=D_bifpn,
-                                num_outs=5)
+                           out_channels=W_bifpn,
+                           stack=D_bifpn,
+                           num_outs=5)
         self.regressionModel = RegressionModel(W_bifpn)
         self.classificationModel = ClassificationModel(W_bifpn, num_classes=num_classes)
         self.anchors = Anchors()
@@ -48,9 +50,9 @@ class EfficientDet(nn.Module):
                 m.weight.data.fill_(1)
                 m.bias.data.zero_()
         prior = 0.01
-        
+
         self.classificationModel.output.weight.data.fill_(0)
-        self.classificationModel.output.bias.data.fill_(-math.log((1.0-prior)/prior))
+        self.classificationModel.output.bias.data.fill_(-math.log((1.0 - prior) / prior))
         self.regressionModel.output.weight.data.fill_(0)
         self.regressionModel.output.bias.data.fill_(0)
         self.freeze_bn()
@@ -76,11 +78,37 @@ class EfficientDet(nn.Module):
             classification = classification[:, scores_over_thresh, :]
             transformed_anchors = transformed_anchors[:, scores_over_thresh, :]
             scores = scores[:, scores_over_thresh, :]
-            anchors_nms_idx = nms(transformed_anchors[0, :, :], scores[0, :, 0], iou_threshold = self.iou_threshold)
+            anchors_nms_idx = nms(transformed_anchors[0, :, :], scores[0, :, 0], iou_threshold=self.iou_threshold)
             nms_scores, nms_class = classification[0, anchors_nms_idx, :].max(dim=1)
             return [nms_scores, nms_class, transformed_anchors[0, anchors_nms_idx, :]]
+
     def freeze_bn(self):
         '''Freeze BatchNorm layers.'''
         for layer in self.modules():
             if isinstance(layer, nn.BatchNorm2d):
                 layer.eval()
+
+    def process_res(self, classification, regression, anchors,inputs):
+        '''
+
+        :param classification:
+        :param regression:
+        :param anchors:
+        :param inputs:
+        :return:
+        '''
+        transformed_anchors = self.regressBoxes(anchors, regression)
+        transformed_anchors = self.clipBoxes(transformed_anchors, inputs)
+        scores = torch.max(classification, dim=2, keepdim=True)[0]
+        scores_over_thresh = (scores > self.threshold)[0, :, 0]
+
+        if scores_over_thresh.sum() == 0:
+            print('No boxes to NMS')
+            # no boxes to NMS, just return
+            return [torch.zeros(0), torch.zeros(0), torch.zeros(0, 4)]
+        classification = classification[:, scores_over_thresh, :]
+        transformed_anchors = transformed_anchors[:, scores_over_thresh, :]
+        scores = scores[:, scores_over_thresh, :]
+        anchors_nms_idx = nms(transformed_anchors[0, :, :], scores[0, :, 0], iou_threshold=self.iou_threshold)
+        nms_scores, nms_class = classification[0, anchors_nms_idx, :].max(dim=1)
+        return nms_scores, nms_class, transformed_anchors[0, anchors_nms_idx, :]
