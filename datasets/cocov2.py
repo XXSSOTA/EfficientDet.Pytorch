@@ -1,6 +1,7 @@
 from __future__ import print_function, division
 import sys
 import os
+import os.path as osp
 import torch
 import numpy as np
 import random
@@ -20,6 +21,36 @@ import cv2
 from PIL import Image
 
 
+IMAGES = 'images'
+ANNOTATIONS = 'annotations'
+COCO_API = 'PythonAPI'
+INSTANCES_SET = 'instances_{}.json'
+COCO_CLASSES = ('person', 'bicycle', 'car', 'motorcycle', 'airplane', 'bus',
+                'train', 'truck', 'boat', 'traffic light', 'fire', 'hydrant',
+                'stop sign', 'parking meter', 'bench', 'bird', 'cat', 'dog',
+                'horse', 'sheep', 'cow', 'elephant', 'bear', 'zebra',
+                'giraffe', 'backpack', 'umbrella', 'handbag', 'tie',
+                'suitcase', 'frisbee', 'skis', 'snowboard', 'sports ball',
+                'kite', 'baseball bat', 'baseball glove', 'skateboard',
+                'surfboard', 'tennis racket', 'bottle', 'wine glass', 'cup',
+                'fork', 'knife', 'spoon', 'bowl', 'banana', 'apple',
+                'sandwich', 'orange', 'broccoli', 'carrot', 'hot dog', 'pizza',
+                'donut', 'cake', 'chair', 'couch', 'potted plant', 'bed',
+                'dining table', 'toilet', 'tv', 'laptop', 'mouse', 'remote',
+                'keyboard', 'cell phone', 'microwave oven', 'toaster', 'sink',
+                'refrigerator', 'book', 'clock', 'vase', 'scissors',
+                'teddy bear', 'hair drier', 'toothbrush')
+
+
+def get_label_map(label_file):
+    label_map = {}
+    labels = open(label_file, 'r')
+    for line in labels:
+        ids = line.split(',')
+        label_map[int(ids[0])] = int(ids[1])
+    return label_map
+
+
 class CocoDataset(Dataset):
     """Coco dataset."""
 
@@ -33,7 +64,7 @@ class CocoDataset(Dataset):
         self.root_dir = root_dir
         self.set_name = set_name
         self.transform = transform
-
+        self.label_map = get_label_map(osp.join('./datasets', 'coco_labels.txt'))
         self.coco = COCO(os.path.join(self.root_dir, 'annotations', 'instances_' + self.set_name + '.json'))
         self.image_ids = self.coco.getImgIds()
 
@@ -130,6 +161,15 @@ class CocoDataset(Dataset):
 
     def num_classes(self):
         return 80
+    
+    def __len__(self):
+        return len(self.ids)
+
+    def __num_class__(self):
+        return len(COCO_CLASSES)
+
+    def label_to_name(self, label):
+        return COCO_CLASSES[label]
 
 
 if __name__ == '__main__':
