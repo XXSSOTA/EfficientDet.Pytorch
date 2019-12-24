@@ -24,7 +24,7 @@ class EfficientDet(nn.Module):
                  D_bifpn=3,
                  W_bifpn=88,
                  D_class=3,
-                 is_training=False,
+                 is_training=True,
                  threshold=0.5,
                  iou_threshold=0.5):
         super(EfficientDet, self).__init__()
