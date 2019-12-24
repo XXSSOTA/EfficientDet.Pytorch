@@ -245,8 +245,8 @@ def eval_voc(iou_threshold=0.5):
         return average_precisions
 
 
-def eval_coco(model, valid_dataloader, valid_dataset, iou_threshold=0.5):
-    device = torch.device('cuda:0')
+def eval_coco(model, valid_dataloader, valid_dataset, device,iou_threshold=0.5):
+    # device = torch.device('cuda:0')
     model.eval()
     with torch.no_grad():
         all_detections = [[None for i in range(valid_dataset.__num_class__())] for j in range(len(valid_dataset))]
