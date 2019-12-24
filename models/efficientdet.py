@@ -1,6 +1,7 @@
 import torch
 import torch.nn as nn
 import math
+import pdb
 from models.efficientnet import EfficientNet
 from models.bifpn import BIFPN
 from models.module import RegressionModel, ClassificationModel, Anchors, ClipBoxes, BBoxTransform
@@ -56,6 +57,7 @@ class EfficientDet(nn.Module):
 
     def forward(self, inputs):
         features = self.efficientnet(inputs)
+        pdb.set_trace()
         features = self.BIFPN(features[-5:])
         regression = torch.cat([self.regressionModel(feature) for feature in features], dim=1)
         classification = torch.cat([self.classificationModel(feature) for feature in features], dim=1)
