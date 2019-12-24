@@ -97,7 +97,7 @@ if (args.dataset == 'VOC'):
 
 elif (args.dataset == 'COCO'):
     # train_dataset = CocoDataset(root_dir=args.dataset_root, set_name='train2017', transform=get_augumentation(
-    train_dataset = CocoDataset(root_dir=args.dataset_root, set_name='val2017', transform=get_augumentation(
+    train_dataset = CocoDataset(root_dir=args.dataset_root, set_name='train2017', transform=get_augumentation(
         phase='train', width=EFFICIENTDET[args.network]['input_size'], height=EFFICIENTDET[args.network]['input_size']))
     # train_dataset = COCODetection(root=args.dataset_root,
     #                               transform=get_augumentation(phase='train', width=EFFICIENTDET[args.network]['input_size'], height=EFFICIENTDET[args.network]['input_size']))
