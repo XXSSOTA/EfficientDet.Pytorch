@@ -145,12 +145,12 @@ def train():
     iteration = 1
     best_precisions = -1000.0;
     for epoch in range(args.num_epoch):
-        print("{} epoch: \t start training....".format(epoch))
-
-        average_precisions = eval_coco(model, valid_dataloader, valid_dataset, device)
-        print('\n')
-        print('$$$$$$$$$$$', average_precisions, '$$$$$$$$$$$$$$$$$$$$$$')
-        print('\n')
+        # print("{} epoch: \t start training....".format(epoch))
+        #
+        # average_precisions = eval_coco(model, valid_dataloader, valid_dataset, device)
+        # print('\n')
+        # print('$$$$$$$$$$$', average_precisions, '$$$$$$$$$$$$$$$$$$$$$$')
+        # print('\n')
         start = time.time()
         result = {}
         total_loss = []
@@ -202,12 +202,12 @@ def train():
             'state_dict': get_state_dict(model)
         }
 
-        average_precisions = eval_coco(model, valid_dataloader,valid_dataset,device)
-        print('\n')
-        print('$$$$$$$$$$$', average_precisions, '$$$$$$$$$$$$$$$$$$$$$$')
-        print('\n')
-        if average_precisions > best_precisions:
-            torch.save(
+        # average_precisions = eval_coco(model, valid_dataloader,valid_dataset,device)
+        # print('\n')
+        # print('$$$$$$$$$$$', average_precisions, '$$$$$$$$$$$$$$$$$$$$$$')
+        # print('\n')
+        # if average_precisions > best_precisions:
+        torch.save(
                 state, './weights/checkpoint_{}_{}_{}.pth'.format(args.dataset, args.network, epoch))
 
     state = {
